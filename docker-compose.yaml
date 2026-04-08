@@ -1,0 +1,49 @@
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: camagru-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - php
+    networks:
+      - camagru-network
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: camagru-php
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - camagru-network
+
+  db:
+    image: mysql:8.0
+    container_name: camagru-mysql
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - camagru-network
+
+networks:
+  camagru-network:
+    driver: bridge
+
+volumes:
+  db_data:
