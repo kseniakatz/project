@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 session_start();
 require_once __DIR__ . '/../database/connection.php';
+require_once __DIR__ . '/helpers.php';
 
 $errors = [];
 $success = false;
+$title = 'Register';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // 1. Получаем и очищаем данные
     $username = trim($_POST['username'] ?? '');
-    $email    = trim($_POST['email'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    // 2. Валидация
     if ($username === '' || strlen($username) < 3) {
         $errors[] = "Username must be at least 3 characters";
     }
@@ -28,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Password must be at least 6 characters";
     }
 
-    // 3. Проверка уникальности
     if (empty($errors)) {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR username = ?");
         $stmt->execute([$email, $username]);
@@ -38,12 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // 4. Если всё ок — создаём пользователя
     if (empty($errors)) {
-
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        // токен для подтверждения email
         $token = bin2hex(random_bytes(32));
 
         $stmt = $pdo->prepare("
@@ -55,52 +50,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username,
             $email,
             $hashedPassword,
-            $token
+            $token,
         ]);
 
         $success = true;
     }
 }
 
-function e($str) {
-    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
-}
+ob_start();
 ?>
+<section class="auth-wrap">
+    <div class="auth-card">
+        <p class="section-tag">New Expedition Member</p>
+        <h1 class="auth-title">Register</h1>
+        <p class="auth-copy">
+            Join the crew and start cataloging scenes, portraits, and hidden clues inside the Camagru archive.
+        </p>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-</head>
-<body>
+        <?php if ($success): ?>
+            <div class="status-box success">
+                <p>Account created. The next step is email verification once that flow is wired in.</p>
+            </div>
+        <?php endif; ?>
 
-<h1>Register</h1>
+        <?php if (!empty($errors)): ?>
+            <div class="status-box error">
+                <ul>
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= e($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
 
-<?php if ($success): ?>
-    <p style="color: green;">Account created! Please check your email.</p>
-<?php endif; ?>
+        <form method="POST" class="form-grid">
+            <div class="field">
+                <label for="username">Username</label>
+                <input
+                    id="username"
+                    type="text"
+                    name="username"
+                    value="<?= e($_POST['username'] ?? '') ?>"
+                    placeholder="Choose your crew name"
+                    required
+                >
+            </div>
 
-<?php if (!empty($errors)): ?>
-    <ul style="color: red;">
-        <?php foreach ($errors as $error): ?>
-            <li><?= e($error) ?></li>
-        <?php endforeach; ?>
-    </ul>
-<?php endif; ?>
+            <div class="field">
+                <label for="email">Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="<?= e($_POST['email'] ?? '') ?>"
+                    placeholder="captain@camagru.local"
+                    required
+                >
+            </div>
 
-<form method="POST">
-    <label>Username:</label><br>
-    <input type="text" name="username" required><br><br>
+            <div class="field">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" placeholder="At least 6 characters" required>
+            </div>
 
-    <label>Email:</label><br>
-    <input type="email" name="email" required><br><br>
+            <button type="submit" class="button-link">Create Account</button>
+        </form>
 
-    <label>Password:</label><br>
-    <input type="password" name="password" required><br><br>
+        <p class="footer-note">
+            Already in the archive? <a href="/login.php">Login here</a>.
+        </p>
+    </div>
+</section>
+<?php
+$content = ob_get_clean();
 
-    <button type="submit">Register</button>
-</form>
-
-</body>
-</html>
+require __DIR__ . '/layout.php';
