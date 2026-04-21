@@ -18,11 +18,11 @@ $isAuthenticated = isset($_SESSION['user_id']);
             --bg-soft: #102838;
             --panel: rgba(10, 19, 27, 0.76);
             --panel-strong: rgba(8, 15, 21, 0.92);
-            --ink: #f4e9ca;
-            --muted: #c9bb92;
-            --line: rgba(221, 187, 111, 0.22);
-            --gold: #d7aa58;
-            --gold-soft: #a77a2b;
+            --ink: #e0f5f4;
+            --muted: #91c8c9;
+            --line: rgba(83, 177, 181, 0.24);
+            --gold: #3fb1b6;
+            --gold-soft: #1f767d;
             --danger-bg: rgba(120, 27, 20, 0.32);
             --danger-line: rgba(228, 127, 104, 0.4);
             --success-bg: rgba(40, 88, 54, 0.32);
@@ -44,9 +44,9 @@ $isAuthenticated = isset($_SESSION['user_id']);
             color: var(--ink);
             font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
             background:
-                radial-gradient(circle at top, rgba(215, 170, 88, 0.14), transparent 30%),
-                radial-gradient(circle at 20% 20%, rgba(35, 81, 112, 0.35), transparent 24%),
-                linear-gradient(180deg, #06111a 0%, #0c1f2c 38%, #08131b 100%);
+                radial-gradient(circle at top, rgba(63, 177, 182, 0.16), transparent 30%),
+                radial-gradient(circle at 20% 20%, rgba(35, 101, 122, 0.38), transparent 24%),
+                linear-gradient(180deg, #04131b 0%, #0a2430 38%, #07161d 100%);
         }
 
         body::before,
@@ -73,7 +73,7 @@ $isAuthenticated = isset($_SESSION['user_id']);
 
         body::after {
             background:
-                radial-gradient(circle at 50% 0%, rgba(228, 190, 109, 0.12), transparent 36%),
+                radial-gradient(circle at 50% 0%, rgba(117, 219, 223, 0.12), transparent 36%),
                 linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.2));
             z-index: -1;
         }
@@ -94,7 +94,7 @@ $isAuthenticated = isset($_SESSION['user_id']);
             z-index: 10;
             backdrop-filter: blur(12px);
             background: rgba(6, 14, 20, 0.72);
-            border-bottom: 1px solid rgba(215, 170, 88, 0.18);
+            border-bottom: 1px solid rgba(63, 177, 182, 0.2);
         }
 
         .topbar-inner {
@@ -151,16 +151,16 @@ $isAuthenticated = isset($_SESSION['user_id']);
         .nav-link:hover,
         .button-link:hover {
             transform: translateY(-1px);
-            border-color: rgba(215, 170, 88, 0.28);
+            border-color: rgba(63, 177, 182, 0.34);
         }
 
         .button-link {
-            background: linear-gradient(135deg, var(--gold) 0%, #9e6e24 100%);
-            color: #130d06;
+            background: linear-gradient(135deg, var(--gold) 0%, #1f767d 100%);
+            color: #04181a;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            box-shadow: inset 0 1px 0 rgba(255, 245, 216, 0.38);
+            box-shadow: inset 0 1px 0 rgba(225, 255, 255, 0.3);
         }
 
         .page-main {
@@ -182,7 +182,7 @@ $isAuthenticated = isset($_SESSION['user_id']);
             inset: 0;
             background:
                 linear-gradient(140deg, rgba(255, 255, 255, 0.05), transparent 40%),
-                radial-gradient(circle at top right, rgba(215, 170, 88, 0.18), transparent 28%);
+                radial-gradient(circle at top right, rgba(63, 177, 182, 0.18), transparent 28%);
             pointer-events: none;
         }
 
@@ -222,7 +222,7 @@ $isAuthenticated = isset($_SESSION['user_id']);
         .hero-subtitle,
         .section-copy,
         .auth-copy {
-            color: #e8dbb6;
+            color: #c5e8e7;
             line-height: 1.7;
             font-size: 1.02rem;
             max-width: 62ch;
@@ -241,7 +241,7 @@ $isAuthenticated = isset($_SESSION['user_id']);
             justify-content: center;
             min-height: 48px;
             padding: 0 22px;
-            border: 1px solid rgba(215, 170, 88, 0.24);
+            border: 1px solid rgba(63, 177, 182, 0.26);
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.03);
             color: var(--ink);
@@ -258,9 +258,9 @@ $isAuthenticated = isset($_SESSION['user_id']);
             padding: 28px;
             border-radius: 24px;
             background:
-                linear-gradient(180deg, rgba(228, 188, 112, 0.12), rgba(9, 18, 25, 0.6)),
+                linear-gradient(180deg, rgba(95, 197, 201, 0.14), rgba(9, 18, 25, 0.6)),
                 rgba(12, 20, 29, 0.82);
-            border: 1px solid rgba(228, 188, 112, 0.2);
+            border: 1px solid rgba(95, 197, 201, 0.24);
         }
 
         .hero-card-title {
@@ -317,7 +317,7 @@ $isAuthenticated = isset($_SESSION['user_id']);
 
         .story-card-highlight {
             background:
-                linear-gradient(180deg, rgba(215, 170, 88, 0.12), rgba(10, 18, 26, 0.82)),
+                linear-gradient(180deg, rgba(63, 177, 182, 0.12), rgba(10, 18, 26, 0.82)),
                 var(--panel-strong);
         }
 
@@ -350,7 +350,7 @@ $isAuthenticated = isset($_SESSION['user_id']);
         .auth-card {
             padding: clamp(28px, 4vw, 40px);
             background:
-                linear-gradient(180deg, rgba(215, 170, 88, 0.09), rgba(7, 14, 20, 0.82)),
+                linear-gradient(180deg, rgba(63, 177, 182, 0.1), rgba(7, 14, 20, 0.82)),
                 var(--panel-strong);
         }
 
@@ -382,15 +382,15 @@ $isAuthenticated = isset($_SESSION['user_id']);
             min-height: 54px;
             padding: 14px 16px;
             border-radius: 16px;
-            border: 1px solid rgba(215, 170, 88, 0.18);
+            border: 1px solid rgba(63, 177, 182, 0.2);
             background: rgba(3, 9, 14, 0.62);
             color: var(--ink);
             font: inherit;
         }
 
         .field input:focus {
-            outline: 2px solid rgba(215, 170, 88, 0.22);
-            border-color: rgba(215, 170, 88, 0.42);
+            outline: 2px solid rgba(63, 177, 182, 0.24);
+            border-color: rgba(63, 177, 182, 0.42);
         }
 
         .status-box {
@@ -479,20 +479,17 @@ $isAuthenticated = isset($_SESSION['user_id']);
     <header class="topbar">
         <div class="site-shell topbar-inner">
             <a href="/" class="brand-lockup">
-                <span class="brand-kicker">Treasure Archive</span>
-                <strong class="brand-mark">Camagru</strong>
+                <strong class="brand-mark">Home</strong>
             </a>
 
             <nav class="nav" aria-label="Primary">
-                <a href="/#story" class="nav-link">Story</a>
-                <a href="/#expedition" class="nav-link">Expedition</a>
-                <a href="/#gallery" class="nav-link">Gallery</a>
                 <?php if ($isAuthenticated): ?>
-                    <span class="nav-link">Logged in as <?= e((string) ($_SESSION['username'] ?? 'Explorer')) ?></span>
+                    <a href="/verify.php" class="nav-link">Verify</a>
+                    <a href="/reset.php" class="nav-link">Reset</a>
                     <a href="/logout.php" class="button-link">Logout</a>
                 <?php else: ?>
                     <a href="/login.php" class="nav-link">Login</a>
-                    <a href="/register.php" class="button-link">Join Crew</a>
+                    <a href="/register.php" class="button-link">Register</a>
                 <?php endif; ?>
             </nav>
         </div>

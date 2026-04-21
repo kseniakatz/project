@@ -54,16 +54,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 require_once __DIR__ . '/helpers.php';
 
+<<<<<<< ours
 // 👉 начинаем буфер
+=======
+>>>>>>> theirs
 ob_start();
 ?>
 <section class="auth-wrap">
     <div class="auth-card">
+<<<<<<< ours
         <p class="section-tag">Return To The Map</p>
         <h1 class="auth-title">Login</h1>
         <p class="auth-copy">
             Pick up the trail where you left it. Enter the archive to manage your account and continue the expedition.
         </p>
+=======
+        <h1 class="auth-title">Login</h1>
+>>>>>>> theirs
 
         <?php if (!empty($errors)): ?>
             <div class="status-box error">
@@ -78,20 +85,31 @@ ob_start();
         <form method="POST" class="form-grid">
             <div class="field">
                 <label for="email">Email</label>
+<<<<<<< ours
                 <input id="email" type="email" name="email" placeholder="captain@camagru.local" required>
+=======
+                <input id="email" type="email" name="email" required>
+>>>>>>> theirs
             </div>
 
             <div class="field">
                 <label for="password">Password</label>
+<<<<<<< ours
                 <input id="password" type="password" name="password" placeholder="Enter your password" required>
+=======
+                <input id="password" type="password" name="password" required>
+>>>>>>> theirs
             </div>
 
             <button type="submit" class="button-link">Login</button>
         </form>
+<<<<<<< ours
 
         <p class="footer-note">
             No account yet? <a href="/register.php">Create one here</a>.
         </p>
+=======
+>>>>>>> theirs
     </div>
 </section>
 
