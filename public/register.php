@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 session_start();
 require_once __DIR__ . '/../database/connection.php';
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/../src/helpers/helpers.php';
 
 $errors = [];
 $success = false;
-<<<<<<< ours
-=======
-$verificationLink = null;
->>>>>>> theirs
 $title = 'Register';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -20,10 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-<<<<<<< ours
-=======
-    // Валидация
->>>>>>> theirs
     if ($username === '' || strlen($username) < 3) {
         $errors[] = "Username must be at least 3 characters";
     }
@@ -36,10 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Password must be at least 6 characters";
     }
 
-<<<<<<< ours
-=======
-    // Проверка существования
->>>>>>> theirs
     if (empty($errors)) {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR username = ?");
         $stmt->execute([$email, $username]);
@@ -49,13 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-<<<<<<< ours
-=======
-    // Создание пользователя
->>>>>>> theirs
     if (empty($errors)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $token = bin2hex(random_bytes(32));
+        $verifyLink = "http://localhost:8080/verify.php?token=$token";
 
         $stmt = $pdo->prepare("
             INSERT INTO users (username, email, password, verification_token)
@@ -69,19 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $token,
         ]);
 
-<<<<<<< ours
-=======
-        // ссылка подтверждения (для subject достаточно)
-        $verificationLink = "http://localhost:8080/verify.php?token=" . $token;
-
->>>>>>> theirs
         $success = true;
     }
 }
 
 ob_start();
 ?>
-<<<<<<< ours
 <section class="auth-wrap">
     <div class="auth-card">
         <p class="section-tag">New Expedition Member</p>
@@ -91,22 +69,12 @@ ob_start();
         </p>
 
         <?php if ($success): ?>
-            <div class="status-box success">
-                <p>Account created. The next step is email verification once that flow is wired in.</p>
-=======
+            <div class="mt-4 text-green-600">
+                Account created.<br>
 
-<section class="auth-wrap">
-    <div class="auth-card">
-        <h1 class="auth-title">Register</h1>
-
-        <?php if ($success): ?>
-            <div class="status-box success">
-                <p>Account created.</p>
-                <p>
-                    Verify your email:
-                    <a href="<?= e($verificationLink) ?>">Click here</a>
-                </p>
->>>>>>> theirs
+                <a href="<?= e($verifyLink) ?>" class="underline">
+                    Verify your account
+                </a>
             </div>
         <?php endif; ?>
 
@@ -128,10 +96,7 @@ ob_start();
                     type="text"
                     name="username"
                     value="<?= e($_POST['username'] ?? '') ?>"
-<<<<<<< ours
                     placeholder="Choose your crew name"
-=======
->>>>>>> theirs
                     required
                 >
             </div>
@@ -143,38 +108,25 @@ ob_start();
                     type="email"
                     name="email"
                     value="<?= e($_POST['email'] ?? '') ?>"
-<<<<<<< ours
                     placeholder="captain@camagru.local"
-=======
->>>>>>> theirs
                     required
                 >
             </div>
 
             <div class="field">
                 <label for="password">Password</label>
-<<<<<<< ours
                 <input id="password" type="password" name="password" placeholder="At least 6 characters" required>
-=======
-                <input id="password" type="password" name="password" required>
->>>>>>> theirs
             </div>
 
             <button type="submit" class="button-link">Create Account</button>
         </form>
-<<<<<<< ours
 
         <p class="footer-note">
             Already in the archive? <a href="/login.php">Login here</a>.
         </p>
     </div>
 </section>
-=======
-    </div>
-</section>
-
->>>>>>> theirs
 <?php
 $content = ob_get_clean();
 
-require __DIR__ . '/layout.php';
+require __DIR__ . '/../src/layout.php';

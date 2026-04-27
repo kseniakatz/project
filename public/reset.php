@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-<<<<<<< ours
-echo 'Reset page';
-=======
 session_start();
 
 $title = 'Reset';
@@ -19,5 +16,4 @@ ob_start();
 <?php
 $content = ob_get_clean();
 
-require __DIR__ . '/layout.php';
->>>>>>> theirs
+require __DIR__ . '/../src/layout.php';

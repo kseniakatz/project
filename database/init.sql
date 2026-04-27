@@ -43,17 +43,17 @@ CREATE TABLE comments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- LIKES
-CREATE TABLE likes (
+CREATE TABLE IF NOT EXISTS likes (
     user_id INT NOT NULL,
-    upload_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, upload_id),
+    image_id INT NOT NULL,
+    PRIMARY KEY (user_id, image_id),
+    INDEX (image_id),
     CONSTRAINT fk_likes_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
         ON DELETE CASCADE,
-    CONSTRAINT fk_likes_upload
-        FOREIGN KEY (upload_id)
+    CONSTRAINT fk_likes_image
+        FOREIGN KEY (image_id)
         REFERENCES uploads(id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/helpers/helpers.php';
 
 $pageTitle = isset($title) ? e($title) : 'Camagru';
 $isAuthenticated = isset($_SESSION['user_id']);
@@ -484,7 +484,6 @@ $isAuthenticated = isset($_SESSION['user_id']);
 
             <nav class="nav" aria-label="Primary">
                 <?php if ($isAuthenticated): ?>
-                    <a href="/verify.php" class="nav-link">Verify</a>
                     <a href="/reset.php" class="nav-link">Reset</a>
                     <a href="/logout.php" class="button-link">Logout</a>
                 <?php else: ?>
