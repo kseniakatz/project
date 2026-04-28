@@ -41,6 +41,32 @@ $stmt->bindValue(':offset', $offset,  PDO::PARAM_INT);
 $stmt->execute();
 $images = $stmt->fetchAll();
 
+$commentsByUpload = [];
+
+if (!empty($images)) {
+    $ids = array_column($images, 'id');
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+
+    $stmt = $pdo->prepare("
+        SELECT
+            c.upload_id,
+            c.content,
+            c.created_at,
+            u.username
+        FROM comments c
+        JOIN users u ON u.id = c.user_id
+        WHERE c.upload_id IN ($placeholders)
+        ORDER BY c.created_at ASC
+    ");
+
+    $stmt->execute($ids);
+    $rows = $stmt->fetchAll();
+
+    foreach ($rows as $row) {
+        $commentsByUpload[$row['upload_id']][] = $row;
+    }
+}
+
 $likedIds = [];
 if ($userId && !empty($images)) {
     $ids = implode(',', array_map('intval', array_column($images, 'id')));
@@ -68,6 +94,35 @@ ob_start();
                     <span><?= e($img['username']) ?></span>
                     <span><?= e($img['likes_count']) ?> ❤️</span>
                 </div>
+
+                <div class="px-3 pb-3 text-sm space-y-1">
+                    <?php if (!empty($commentsByUpload[$img['id']])): ?>
+                        <?php foreach ($commentsByUpload[$img['id']] as $comment): ?>
+                            <div>
+                                <span class="font-semibold"><?= e($comment['username']) ?>:</span>
+                                <span><?= e($comment['content']) ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-gray-400">No comments</p>
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($userId): ?>
+                    <form method="POST" action="/comment.php" class="p-3">
+                        <input type="hidden" name="upload_id" value="<?= (int)$img['id'] ?>">
+                        <input
+                            type="text"
+                            name="content"
+                            placeholder="Add comment..."
+                            required
+                            class="border px-2 py-1 w-full text-sm mb-2 rounded"
+                        >
+                        <button class="bg-gray-800 text-white px-3 py-1 rounded text-sm">
+                            Comment
+                        </button>
+                    </form>
+                <?php endif; ?>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <form method="POST" action="/like.php" class="p-3">
