@@ -122,11 +122,11 @@ ob_start();
         </form>
 
         <p class="footer-note">
-            Already in the archive? <a href="/login.php">Login here</a>.
+            Already in the archive? <a href="/?page=login">Login here</a>.
         </p>
     </div>
 </section>
 <?php
 $content = ob_get_clean();
 
-require __DIR__ . '/../src/layout.php';
+require __DIR__ . '/../views/layout.php';

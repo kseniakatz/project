@@ -11,20 +11,20 @@ $userId = $_SESSION['user_id'] ?? null;
 
 const PER_PAGE = 5;
 
-$page = (int)($_GET['page'] ?? 1);
-if ($page < 1) {
-    $page = 1;
+$currentPage = (int)($_GET['p'] ?? 1);
+if ($currentPage < 1) {
+    $currentPage = 1;
 }
 
 $total = (int)$pdo->query('SELECT COUNT(*) FROM uploads')->fetchColumn();
 
 $totalPages = $total > 0 ? (int)ceil($total / PER_PAGE) : 1;
 
-if ($page > $totalPages) {
-    $page = $totalPages;
+if ($currentPage > $totalPages) {
+    $currentPage = $totalPages;
 }
 
-$offset = ($page - 1) * PER_PAGE;
+$offset = ($currentPage - 1) * PER_PAGE;
 
 $stmt = $pdo->prepare('
     SELECT u.id, u.filename, u.created_at, usr.username,
@@ -138,12 +138,12 @@ ob_start();
 
     <?php if ($totalPages > 1): ?>
         <nav class="pagination">
-            <?php if ($page > 1): ?>
-                <a href="?page=<?= $page - 1 ?>" class="button-secondary">Prev</a>
+            <?php if ($currentPage > 1): ?>
+                <a href="/?page=gallery&p=<?= $currentPage - 1 ?>" class="button-secondary">Prev</a>
             <?php endif; ?>
-            <span class="muted">Page <?= $page ?> / <?= $totalPages ?></span>
-            <?php if ($page < $totalPages): ?>
-                <a href="?page=<?= $page + 1 ?>" class="button-secondary">Next</a>
+            <span class="muted">Page <?= $currentPage ?> / <?= $totalPages ?></span>
+            <?php if ($currentPage < $totalPages): ?>
+                <a href="/?page=gallery&p=<?= $currentPage + 1 ?>" class="button-secondary">Next</a>
             <?php endif; ?>
         </nav>
     <?php endif; ?>
@@ -210,4 +210,4 @@ ob_start();
 </style>
 <?php
 $content = ob_get_clean();
-require __DIR__ . '/../src/layout.php';
+require __DIR__ . '/../views/layout.php';

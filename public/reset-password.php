@@ -16,4 +16,4 @@ ob_start();
 <?php
 $content = ob_get_clean();
 
-require __DIR__ . '/../src/layout.php';
+require __DIR__ . '/../views/layout.php';

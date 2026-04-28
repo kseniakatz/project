@@ -26,7 +26,7 @@ services:
       - camagru-network
 
   db:
-    image: mysql:8.0
+    image: docker.io/library/mysql:8.0
     container_name: camagru-mysql
     env_file:
       - .env

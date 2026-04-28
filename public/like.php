@@ -6,7 +6,7 @@ session_start();
 require_once __DIR__ . '/../database/connection.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /login.php');
+    header('Location: /?page=login');
     exit;
 }
 
@@ -23,5 +23,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-header('Location: /gallery.php');
+header('Location: /?page=gallery');
 exit;

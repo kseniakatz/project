@@ -45,7 +45,7 @@ ob_start();
 
         <?php if ($status === 'success'): ?>
             <p class="footer-note">
-                <a href="/login.php">Go to login</a>.
+                <a href="/?page=login">Go to login</a>.
             </p>
         <?php endif; ?>
     </div>
@@ -53,4 +53,4 @@ ob_start();
 <?php
 $content = ob_get_clean();
 
-require __DIR__ . '/../src/layout.php';
+require __DIR__ . '/../views/layout.php';

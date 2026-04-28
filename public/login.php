@@ -7,7 +7,7 @@ require_once __DIR__ . '/../database/connection.php';
 require_once __DIR__ . '/../src/helpers/helpers.php';
 
 if (isset($_SESSION['user_id'])) {
-    header('Location: /gallery.php');
+    header('Location: /?page=gallery');
     exit;
 }
 
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $_SESSION['user_id']  = $user['id'];
             $_SESSION['username'] = $user['username'];
-            header('Location: /gallery.php');
+            header('Location: /?page=gallery');
             exit;
         }
     }
@@ -75,13 +75,13 @@ ob_start();
         </form>
 
         <p class="footer-note">
-            No account yet? <a href="/register.php">Register</a>.
+            No account yet? <a href="/?page=register">Register</a>.
         </p>
         <p class="footer-note">
-            <a href="/reset.php">Forgot password?</a>
+            <a href="/?page=reset-password">Forgot password?</a>
         </p>
     </div>
 </section>
 <?php
 $content = ob_get_clean();
-require __DIR__ . '/../src/layout.php';
+require __DIR__ . '/../views/layout.php';
