@@ -13,6 +13,9 @@ if (!isset($_SESSION['user_id'])) {
 $userId = (int)$_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+        exit('Invalid CSRF token');
+    }
 
     $uploadId = (int)($_POST['upload_id'] ?? 0);
 

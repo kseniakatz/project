@@ -11,6 +11,10 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $userId = (int)$_SESSION['user_id'];
 $title = 'Profile';
 $errors = [];
@@ -31,8 +35,13 @@ if (!$user) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+        exit('Invalid CSRF token');
+    }
+
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
     $sendCommentEmail = isset($_POST['is_send_comment_email']) ? 1 : 0;
 
     if ($username === '' || strlen($username) < 3) {
@@ -41,6 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'Invalid email';
+    }
+
+    if ($password !== '' && strlen($password) < 6) {
+        $errors[] = 'Password must be at least 6 characters';
     }
 
     if (empty($errors)) {
@@ -58,14 +71,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare('
-            UPDATE users
-            SET username = ?,
-                email = ?,
-                is_send_comment_email = ?
-            WHERE id = ?
-        ');
-        $stmt->execute([$username, $email, $sendCommentEmail, $userId]);
+        if ($password !== '') {
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+
+            $stmt = $pdo->prepare('
+                UPDATE users
+                SET username = ?,
+                    email = ?,
+                    is_send_comment_email = ?,
+                    password = ?
+                WHERE id = ?
+            ');
+            $stmt->execute([$username, $email, $sendCommentEmail, $hash, $userId]);
+        } else {
+            $stmt = $pdo->prepare('
+                UPDATE users
+                SET username = ?,
+                    email = ?,
+                    is_send_comment_email = ?
+                WHERE id = ?
+            ');
+            $stmt->execute([$username, $email, $sendCommentEmail, $userId]);
+        }
 
         $_SESSION['username'] = $username;
         $user['username'] = $username;
@@ -77,18 +104,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ob_start();
 ?>
-<section class="auth-wrap">
-    <div class="auth-card">
-        <h1 class="auth-title">Profile</h1>
+<section class="max-w-md mx-auto">
+    <div class="bg-white p-6 rounded shadow">
+        <h1 class="text-2xl font-bold mb-4">Profile</h1>
 
         <?php if ($success): ?>
-            <div class="status-box success">
+            <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
                 <p>Profile updated.</p>
             </div>
         <?php endif; ?>
 
         <?php if (!empty($errors)): ?>
-            <div class="status-box error">
+            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
                 <ul>
                     <?php foreach ($errors as $error): ?>
                         <li><?= e($error) ?></li>
@@ -97,26 +124,41 @@ ob_start();
             </div>
         <?php endif; ?>
 
-        <form method="POST" class="form-grid">
-            <div class="field">
+        <form method="POST" class="space-y-4">
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+
+            <div>
                 <label for="username">Username</label>
                 <input
                     id="username"
                     type="text"
                     name="username"
                     value="<?= e($user['username']) ?>"
+                    class="border p-2 rounded w-full"
                     required
                 >
             </div>
 
-            <div class="field">
+            <div>
                 <label for="email">Email</label>
                 <input
                     id="email"
                     type="email"
                     name="email"
                     value="<?= e($user['email']) ?>"
+                    class="border p-2 rounded w-full"
                     required
+                >
+            </div>
+
+            <div>
+                <label for="password">New password</label>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    placeholder="Leave empty to keep current password"
+                    class="border p-2 rounded w-full"
                 >
             </div>
 
@@ -130,7 +172,7 @@ ob_start();
                 Send email notifications for comments
             </label>
 
-            <button type="submit" class="button-link">Update Profile</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Update Profile</button>
         </form>
     </div>
 </section>

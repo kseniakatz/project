@@ -6,6 +6,10 @@ session_start();
 require_once __DIR__ . '/../database/connection.php';
 require_once __DIR__ . '/../src/helpers/helpers.php';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $errors = [];
 $success = false;
 $title = 'Register';
@@ -17,6 +21,9 @@ function sendMail(string $to, string $subject, string $message): bool
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+        exit('Invalid CSRF token');
+    }
 
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -46,7 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $token = bin2hex(random_bytes(32));
-        $verifyLink = "http://localhost:8080/verify.php?token=$token";
+        $host = $_SERVER['HTTP_HOST'];
+        $verifyLink = "http://$host/verify.php?token=$token";
 
         $stmt = $pdo->prepare("
             INSERT INTO users (username, email, password, verification_token)
@@ -104,6 +112,8 @@ ob_start();
         <?php endif; ?>
 
         <form method="POST" class="form-grid">
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+
             <div class="field">
                 <label for="username">Username</label>
                 <input

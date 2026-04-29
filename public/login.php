@@ -6,6 +6,10 @@ session_start();
 require_once __DIR__ . '/../database/connection.php';
 require_once __DIR__ . '/../src/helpers/helpers.php';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if (isset($_SESSION['user_id'])) {
     header('Location: /gallery.php');
     exit;
@@ -15,6 +19,10 @@ $errors = [];
 $title = 'Login';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
+        exit('Invalid CSRF token');
+    }
+
     $login    = trim($_POST['login'] ?? '');
     $password = $_POST['password'] ?? '';
 
@@ -63,6 +71,8 @@ ob_start();
         <?php endif; ?>
 
         <form method="POST" class="form-grid">
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+
             <div class="field">
                 <label for="login">Email or Username</label>
                 <input id="login" type="text" name="login"
@@ -79,7 +89,7 @@ ob_start();
             No account yet? <a href="/register.php">Register</a>.
         </p>
         <p class="footer-note">
-            <a href="/reset-password.php">Forgot password?</a>
+            <a href="/forgot-password.php">Forgot password?</a>
         </p>
     </div>
 </section>

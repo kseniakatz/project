@@ -6,8 +6,17 @@ session_start();
 require_once __DIR__ . '/../database/connection.php';
 require_once __DIR__ . '/../src/helpers/helpers.php';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $title = 'Gallery';
-$userId = $_SESSION['user_id'] ?? null;
+$userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+$sort = $_GET['sort'] ?? 'newest';
+
+if (!in_array($sort, ['newest', 'likes'], true)) {
+    $sort = 'newest';
+}
 
 const PER_PAGE = 5;
 
@@ -24,10 +33,12 @@ if ($page > $totalPages) {
 }
 
 $offset = ($page - 1) * PER_PAGE;
+$orderBy = $sort === 'likes' ? 'likes_count DESC, u.created_at DESC' : 'u.created_at DESC';
 
-$stmt = $pdo->prepare('
+$stmt = $pdo->prepare("
     SELECT
         u.id,
+        u.user_id,
         u.filename,
         u.created_at,
         usr.username,
@@ -36,9 +47,9 @@ $stmt = $pdo->prepare('
     JOIN users usr ON usr.id = u.user_id
     LEFT JOIN likes l ON l.upload_id = u.id
     GROUP BY u.id
-    ORDER BY u.created_at DESC
+    ORDER BY $orderBy
     LIMIT :limit OFFSET :offset
-');
+");
 
 $stmt->bindValue(':limit', PER_PAGE, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -78,6 +89,14 @@ ob_start();
 
 <h1 class="text-2xl font-bold mb-6">Gallery</h1>
 
+<form method="GET" class="mb-6">
+    <label for="sort" class="mr-2">Sort</label>
+    <select id="sort" name="sort" class="border p-2 rounded" onchange="this.form.submit()">
+        <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Newest</option>
+        <option value="likes" <?= $sort === 'likes' ? 'selected' : '' ?>>Most liked</option>
+    </select>
+</form>
+
 <?php if (empty($images)): ?>
     <p class="text-gray-500">No images yet.</p>
 <?php else: ?>
@@ -97,41 +116,59 @@ ob_start();
                 <img
                     src="/uploads/<?= e($filename) ?>"
                     alt="Photo by <?= e($img['username']) ?>"
-                    class="w-full aspect-square object-cover"
+                    class="w-full aspect-square object-cover transition transform hover:scale-105"
                 >
 
                 <div class="p-3 flex justify-between text-sm text-gray-600">
                     <span><?= e($img['username']) ?></span>
-                    <span><?= (int)$img['likes_count'] ?> ❤️</span>
                 </div>
 
                 <?php if ($userId): ?>
-                    <form method="POST" action="/like.php" class="p-3">
+                    <form method="POST" action="/like.php" class="p-3 like-form">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="upload_id" value="<?= (int)$img['id'] ?>">
-                        <button class="px-3 py-1 rounded text-sm <?= $liked ? 'bg-red-500 text-white' : 'bg-blue-600 text-white' ?>">
-                            <?= $liked ? 'Unlike' : 'Like' ?>
+                        <button class="like-button px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed <?= $liked ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700' ?>">
+                            <span class="like-label"><?= $liked ? '❤️ Unlike' : '♡ Like' ?></span>
+                            <span class="like-count"><?= (int)$img['likes_count'] ?></span>
                         </button>
                     </form>
                 <?php endif; ?>
 
-                <div class="p-3 border-t text-sm">
+                <?php if ($userId !== null && $userId === (int)$img['user_id']): ?>
+                    <form method="POST" action="/delete-image.php" class="p-3">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="upload_id" value="<?= (int)$img['id'] ?>">
+                        <button class="text-red-500 text-sm disabled:opacity-50 disabled:cursor-not-allowed" onclick="return confirm('Delete this image?')">Delete</button>
+                    </form>
+                <?php endif; ?>
+
+                <div class="m-3 p-3 border rounded bg-gray-50 text-sm comments-list">
                     <?php if (empty($comments)): ?>
-                        <p class="text-gray-500">No comments yet.</p>
+                        <p class="text-gray-500 no-comments">No comments yet.</p>
                     <?php else: ?>
                         <?php foreach ($comments as $comment): ?>
-                            <p>
-                                <strong><?= e($comment['username']) ?>:</strong>
-                                <?= e($comment['content']) ?>
+                            <p class="mb-2 last:mb-0">
+                                <strong class="font-bold"><?= e($comment['username']) ?>:</strong>
+                                <span><?= e($comment['content']) ?></span>
                             </p>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
 
                 <?php if ($userId): ?>
-                    <form method="POST" action="/comment.php" class="p-3 border-t">
+                    <form method="POST" action="/comment.php" class="p-3 border-t comment-form">
+                        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="upload_id" value="<?= (int)$img['id'] ?>">
-                        <input type="text" name="content" required>
-                        <button>Comment</button>
+                        <input
+                            type="text"
+                            name="content"
+                            required
+                            placeholder="Write a comment..."
+                            class="border p-2 rounded w-full mb-2"
+                        >
+                        <button class="bg-blue-500 text-white px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                            Send
+                        </button>
                     </form>
                 <?php endif; ?>
 
@@ -145,7 +182,7 @@ ob_start();
         <nav class="flex items-center gap-4 mt-8">
 
             <?php if ($page > 1): ?>
-                <a href="/gallery.php?page=<?= $page - 1 ?>" class="px-3 py-1 bg-gray-200 rounded">Prev</a>
+                <a href="/gallery.php?page=<?= $page - 1 ?>&sort=<?= e($sort) ?>" class="px-3 py-1 bg-gray-200 rounded">Prev</a>
             <?php endif; ?>
 
             <span class="text-gray-500">
@@ -153,13 +190,89 @@ ob_start();
             </span>
 
             <?php if ($page < $totalPages): ?>
-                <a href="/gallery.php?page=<?= $page + 1 ?>" class="px-3 py-1 bg-gray-200 rounded">Next</a>
+                <a href="/gallery.php?page=<?= $page + 1 ?>&sort=<?= e($sort) ?>" class="px-3 py-1 bg-gray-200 rounded">Next</a>
             <?php endif; ?>
 
         </nav>
     <?php endif; ?>
 
 <?php endif; ?>
+
+<script>
+document.querySelectorAll('.like-form').forEach(form => {
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    return;
+                }
+
+                const button = form.querySelector('.like-button');
+                const label = form.querySelector('.like-label');
+                const count = form.querySelector('.like-count');
+
+                count.textContent = data.likes;
+                label.textContent = data.liked ? '❤️ Unlike' : '♡ Like';
+                button.classList.toggle('bg-red-500', data.liked);
+                button.classList.toggle('text-white', data.liked);
+                button.classList.toggle('bg-gray-200', !data.liked);
+                button.classList.toggle('text-gray-700', !data.liked);
+            });
+    });
+});
+
+document.querySelectorAll('.comment-form').forEach(form => {
+    form.addEventListener('submit', event => {
+        event.preventDefault();
+
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.username || !data.content) {
+                    return;
+                }
+
+                const card = form.closest('.bg-white');
+                const list = card.querySelector('.comments-list');
+                const empty = list.querySelector('.no-comments');
+
+                if (empty) {
+                    empty.remove();
+                }
+
+                const row = document.createElement('p');
+                row.className = 'mb-2 last:mb-0';
+
+                const name = document.createElement('strong');
+                name.className = 'font-bold';
+                name.textContent = data.username + ':';
+
+                const content = document.createElement('span');
+                content.textContent = ' ' + data.content;
+
+                row.appendChild(name);
+                row.appendChild(content);
+                list.appendChild(row);
+                form.reset();
+            });
+    });
+});
+</script>
 
 <?php
 $content = ob_get_clean();

@@ -11,6 +11,10 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+    exit('Invalid CSRF token');
+}
+
 $userId = (int)$_SESSION['user_id'];
 $overlay = basename($_POST['overlay'] ?? '');
 $cameraImage = $_POST['camera_image'] ?? '';
@@ -48,9 +52,16 @@ if ($cameraImage !== '') {
 } elseif (
     is_array($upload)
     && isset($upload['error'], $upload['tmp_name'])
-    && $upload['error'] === UPLOAD_ERR_OK
-    && is_uploaded_file($upload['tmp_name'])
 ) {
+    if ($upload['error'] !== UPLOAD_ERR_OK) {
+        exit('Upload failed');
+    }
+
+    if (!is_uploaded_file($upload['tmp_name'])) {
+        header('Location: /editor.php');
+        exit;
+    }
+
     if (($upload['size'] ?? 0) > $maxImageSize) {
         header('Location: /editor.php');
         exit;
@@ -91,6 +102,12 @@ if (!$overlayImg) {
 
 $width = imagesx($base);
 $height = imagesy($base);
+
+if ($width > 2000 || $height > 2000) {
+    imagedestroy($base);
+    imagedestroy($overlayImg);
+    exit('Image too large');
+}
 
 $overlayResized = imagecreatetruecolor($width, $height);
 imagealphablending($overlayResized, false);

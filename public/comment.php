@@ -5,12 +5,33 @@ declare(strict_types=1);
 session_start();
 require_once __DIR__ . '/../database/connection.php';
 
+$isAjax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest';
+
+function jsonResponse(array $data): void
+{
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
+
 if (!isset($_SESSION['user_id'])) {
+    if ($isAjax) {
+        jsonResponse(['success' => false]);
+    }
+
     header('Location: /login.php');
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+        if ($isAjax) {
+            jsonResponse(['success' => false]);
+        }
+
+        exit('Invalid CSRF token');
+    }
+
     $uploadId = (int)($_POST['upload_id'] ?? 0);
     $content  = trim($_POST['content'] ?? '');
     $userId   = (int)$_SESSION['user_id'];
@@ -22,6 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$uploadId]);
 
         if (!$stmt->fetch()) {
+            if ($isAjax) {
+                jsonResponse(['success' => false]);
+            }
+
             header('Location: /gallery.php');
             exit;
         }
@@ -32,6 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             VALUES (?, ?, ?)
         ');
         $stmt->execute([$userId, $uploadId, $content]);
+
+        $stmt = $pdo->prepare('SELECT username FROM users WHERE id = ?');
+        $stmt->execute([$userId]);
+        $username = (string)$stmt->fetchColumn();
 
         // get image owner
         $stmt = $pdo->prepare('
@@ -52,7 +81,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             mail($to, $subject, $message);
         }
+
+        if ($isAjax) {
+            jsonResponse([
+                'username' => $username,
+                'content' => $content,
+            ]);
+        }
     }
+}
+
+if ($isAjax) {
+    jsonResponse(['success' => false]);
 }
 
 header('Location: /gallery.php');
