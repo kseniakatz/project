@@ -6,22 +6,49 @@ session_start();
 require_once __DIR__ . '/../database/connection.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /?page=login');
+    header('Location: /login.php');
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $imageId = (int)($_POST['image_id'] ?? 0);
-    $userId  = (int)$_SESSION['user_id'];
+    $uploadId = (int)($_POST['upload_id'] ?? 0);
+    $userId   = (int)$_SESSION['user_id'];
 
-    if ($imageId > 0) {
+    if ($uploadId > 0) {
+
+        // check image exists
+        $stmt = $pdo->prepare('SELECT id FROM uploads WHERE id = ?');
+        $stmt->execute([$uploadId]);
+
+        if (!$stmt->fetch()) {
+            header('Location: /gallery.php');
+            exit;
+        }
+
+        // check if already liked
         $stmt = $pdo->prepare('
-            INSERT IGNORE INTO likes (user_id, image_id)
-            VALUES (?, ?)
+            SELECT 1 FROM likes 
+            WHERE user_id = ? AND upload_id = ?
         ');
-        $stmt->execute([$userId, $imageId]);
+        $stmt->execute([$userId, $uploadId]);
+
+        if ($stmt->fetch()) {
+            // unlike
+            $stmt = $pdo->prepare('
+                DELETE FROM likes 
+                WHERE user_id = ? AND upload_id = ?
+            ');
+            $stmt->execute([$userId, $uploadId]);
+        } else {
+            // like
+            $stmt = $pdo->prepare('
+                INSERT INTO likes (user_id, upload_id)
+                VALUES (?, ?)
+            ');
+            $stmt->execute([$userId, $uploadId]);
+        }
     }
 }
 
-header('Location: /?page=gallery');
+header('Location: /gallery.php');
 exit;

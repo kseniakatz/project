@@ -7,7 +7,7 @@ require_once __DIR__ . '/../database/connection.php';
 require_once __DIR__ . '/../src/helpers/helpers.php';
 
 if (isset($_SESSION['user_id'])) {
-    header('Location: /?page=gallery');
+    header('Location: /gallery.php');
     exit;
 }
 
@@ -37,9 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ((int)$user['is_verified'] !== 1) {
             $errors[] = 'Please verify your email before logging in';
         } else {
+            session_regenerate_id(true);
             $_SESSION['user_id']  = $user['id'];
             $_SESSION['username'] = $user['username'];
-            header('Location: /?page=gallery');
+            header('Location: /gallery.php');
             exit;
         }
     }
@@ -75,10 +76,10 @@ ob_start();
         </form>
 
         <p class="footer-note">
-            No account yet? <a href="/?page=register">Register</a>.
+            No account yet? <a href="/register.php">Register</a>.
         </p>
         <p class="footer-note">
-            <a href="/?page=reset-password">Forgot password?</a>
+            <a href="/reset-password.php">Forgot password?</a>
         </p>
     </div>
 </section>

@@ -9,6 +9,12 @@ require_once __DIR__ . '/../src/helpers/helpers.php';
 $errors = [];
 $success = false;
 $title = 'Register';
+$mailSent = false;
+
+function sendMail(string $to, string $subject, string $message): bool
+{
+    return mail($to, $subject, $message);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -54,6 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $token,
         ]);
 
+        $mailSent = sendMail(
+            $email,
+            'Verify your Camagru account',
+            "Click this link to verify your account:\n\n" . $verifyLink
+        );
+
         $success = true;
     }
 }
@@ -70,11 +82,14 @@ ob_start();
 
         <?php if ($success): ?>
             <div class="mt-4 text-green-600">
-                Account created.<br>
+                Account created. Check your email to verify your account.<br>
 
-                <a href="<?= e($verifyLink) ?>" class="underline">
-                    Verify your account
-                </a>
+                <?php if (!$mailSent): ?>
+                    Mail could not be sent.<br>
+                    <a href="<?= e($verifyLink) ?>" class="underline">
+                        Verify your account
+                    </a>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 
@@ -122,7 +137,7 @@ ob_start();
         </form>
 
         <p class="footer-note">
-            Already in the archive? <a href="/?page=login">Login here</a>.
+            Already in the archive? <a href="/login.php">Login here</a>.
         </p>
     </div>
 </section>

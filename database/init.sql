@@ -7,6 +7,8 @@ CREATE TABLE users (
     is_verified TINYINT(1) DEFAULT 0,
     is_send_comment_email TINYINT(1) DEFAULT 1,
     verification_token VARCHAR(255) DEFAULT NULL,
+    reset_token VARCHAR(255) DEFAULT NULL,
+    reset_token_expires DATETIME DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -43,17 +45,17 @@ CREATE TABLE comments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- LIKES
-CREATE TABLE IF NOT EXISTS likes (
+CREATE TABLE likes (
     user_id INT NOT NULL,
-    image_id INT NOT NULL,
-    PRIMARY KEY (user_id, image_id),
-    INDEX (image_id),
+    upload_id INT NOT NULL,
+    PRIMARY KEY (user_id, upload_id),
+    INDEX (upload_id),
     CONSTRAINT fk_likes_user
         FOREIGN KEY (user_id)
         REFERENCES users(id)
         ON DELETE CASCADE,
-    CONSTRAINT fk_likes_image
-        FOREIGN KEY (image_id)
+    CONSTRAINT fk_likes_upload
+        FOREIGN KEY (upload_id)
         REFERENCES uploads(id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

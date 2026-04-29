@@ -478,17 +478,17 @@ $isAuthenticated = isset($_SESSION['user_id']);
 <body>
     <header class="topbar">
         <div class="site-shell topbar-inner">
-            <a href="/?page=gallery" class="brand-lockup">
+            <a href="/gallery.php" class="brand-lockup">
                 <strong class="brand-mark">Home</strong>
             </a>
 
             <nav class="nav" aria-label="Primary">
                 <?php if ($isAuthenticated): ?>
-                    <a href="/?page=reset-password" class="nav-link">Reset</a>
-                    <a href="/?page=logout" class="button-link">Logout</a>
+                    <a href="/reset-password.php" class="nav-link">Reset</a>
+                    <a href="/logout.php" class="button-link">Logout</a>
                 <?php else: ?>
-                    <a href="/?page=login" class="nav-link">Login</a>
-                    <a href="/?page=register" class="button-link">Register</a>
+                    <a href="/login.php" class="nav-link">Login</a>
+                    <a href="/register.php" class="button-link">Register</a>
                 <?php endif; ?>
             </nav>
         </div>

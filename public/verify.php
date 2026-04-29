@@ -3,54 +3,54 @@
 declare(strict_types=1);
 
 session_start();
+
 require_once __DIR__ . '/../database/connection.php';
 require_once __DIR__ . '/../src/helpers/helpers.php';
 
-$message = '';
-$status = 'error';
 $title = 'Verify';
 
-$token = trim($_GET['token'] ?? '');
+$message = 'Invalid verification link.';
+$success = false;
 
-if ($token === '') {
-    $message = 'Verification token is missing.';
-} else {
-    $stmt = $pdo->prepare('SELECT id FROM users WHERE verification_token = ? LIMIT 1');
+$token = $_GET['token'] ?? '';
+
+if ($token !== '') {
+    $stmt = $pdo->prepare('SELECT id FROM users WHERE verification_token = ?');
     $stmt->execute([$token]);
+
     $user = $stmt->fetch();
 
-    if (!$user) {
-        $message = 'Invalid or expired verification link.';
-    } else {
+    if ($user) {
         $stmt = $pdo->prepare('
             UPDATE users
-            SET is_verified = 1, verification_token = NULL
+            SET is_verified = 1,
+                verification_token = NULL
             WHERE id = ?
         ');
         $stmt->execute([$user['id']]);
 
-        $status = 'success';
-        $message = 'Account verified. You can now log in.';
+        $success = true;
+        $message = 'Your account is now verified. You can login.';
     }
 }
 
 ob_start();
 ?>
-<section class="auth-wrap">
-    <div class="auth-card">
-        <h1 class="auth-title">Verify</h1>
-        <div class="status-box <?= e($status) ?>">
-            <p><?= e($message) ?></p>
-        </div>
 
-        <?php if ($status === 'success'): ?>
-            <p class="footer-note">
-                <a href="/?page=login">Go to login</a>.
-            </p>
-        <?php endif; ?>
-    </div>
-</section>
+<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-xl font-bold mb-4">Email Verification</h1>
+
+    <p class="<?= $success ? 'text-green-600' : 'text-red-500' ?>">
+        <?= e($message) ?>
+    </p>
+
+    <?php if ($success): ?>
+        <a href="/login.php" class="text-blue-600 underline block mt-4">
+            Go to login
+        </a>
+    <?php endif; ?>
+</div>
+
 <?php
 $content = ob_get_clean();
-
 require __DIR__ . '/../views/layout.php';
