@@ -20,8 +20,22 @@ services:
     container_name: camagru-php
     env_file:
       - .env
+    depends_on:
+      mailhog:
+        condition: service_started
+      db:
+        condition: service_healthy
     volumes:
       - ./:/var/www/html:z
+    networks:
+      - camagru-network
+
+  mailhog:
+    image: docker.io/mailhog/mailhog:latest
+    container_name: camagru-mailhog
+    ports:
+      - "8025:8025"
+      - "1025:1025"
     networks:
       - camagru-network
 
@@ -38,6 +52,11 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - camagru-network
 

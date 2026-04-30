@@ -39,8 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
 
     $password = $_POST['password'] ?? '';
 
-    if (strlen($password) < 6) {
-        $errors[] = 'Password must be at least 6 characters';
+    $passwordError = validatePassword($password);
+    if ($passwordError !== null) {
+        $errors[] = $passwordError;
     }
 
     if (empty($errors)) {
@@ -82,12 +83,12 @@ ob_start();
         <?php endif; ?>
 
         <?php if ($user && !$success): ?>
-            <form method="POST" class="space-y-4">
+            <form method="POST" class="flex flex-col gap-4">
                 <input type="hidden" name="token" value="<?= e($token) ?>">
                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
 
                 <div>
-                    <label for="password">New password</label>
+                    <label for="password" class="block text-sm font-medium">New password</label>
                     <input id="password" type="password" name="password" class="border p-2 rounded w-full" required>
                 </div>
 

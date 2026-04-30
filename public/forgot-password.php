@@ -13,8 +13,8 @@ if (empty($_SESSION['csrf_token'])) {
 $title = 'Forgot Password';
 $errors = [];
 $success = false;
-$resetLink = '';
 $mailSent = false;
+$mailAttempted = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
@@ -44,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ');
             $stmt->execute([$token, $expires, $user['id']]);
 
-            $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
-            $resetLink = 'http://' . $host . '/reset-password.php?token=' . $token;
+            $resetLink = app_url('reset-password.php?token=' . $token);
+            $mailAttempted = true;
             $mailSent = mail($email, 'Reset your Camagru password', "Reset your password:\n\n" . $resetLink);
         }
 
@@ -62,8 +62,8 @@ ob_start();
         <?php if ($success): ?>
             <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
                 <p>If the email exists, a reset link has been sent.</p>
-                <?php if ($resetLink !== '' && !$mailSent): ?>
-                    <p><a href="<?= e($resetLink) ?>">Reset your password</a></p>
+                <?php if ($mailAttempted && !$mailSent): ?>
+                    <p>Mail could not be sent. Please try again later.</p>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -78,11 +78,11 @@ ob_start();
             </div>
         <?php endif; ?>
 
-        <form method="POST" class="space-y-4">
+        <form method="POST" class="flex flex-col gap-4">
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
 
             <div>
-                <label for="email">Email</label>
+                <label for="email" class="block text-sm font-medium">Email</label>
                 <input
                     id="email"
                     type="email"

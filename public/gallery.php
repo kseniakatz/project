@@ -226,7 +226,8 @@ document.querySelectorAll('.like-form').forEach(form => {
                 button.classList.toggle('text-white', data.liked);
                 button.classList.toggle('bg-gray-200', !data.liked);
                 button.classList.toggle('text-gray-700', !data.liked);
-            });
+            })
+            .catch(() => {});
     });
 });
 
@@ -269,7 +270,8 @@ document.querySelectorAll('.comment-form').forEach(form => {
                 row.appendChild(content);
                 list.appendChild(row);
                 form.reset();
-            });
+            })
+            .catch(() => {});
     });
 });
 </script>

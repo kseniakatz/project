@@ -37,8 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = "Invalid email";
     }
 
-    if (strlen($password) < 6) {
-        $errors[] = "Password must be at least 6 characters";
+    $passwordError = validatePassword($password);
+    if ($passwordError !== null) {
+        $errors[] = $passwordError;
     }
 
     if (empty($errors)) {
@@ -53,9 +54,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $token = bin2hex(random_bytes(32));
-        $host = $_SERVER['HTTP_HOST'];
-        $verifyLink = "http://$host/verify.php?token=$token";
+        $verifyLink = app_url('verify.php?token=' . $token);
 
+        $mailSent = sendMail(
+            $email,
+            'Verify your Camagru account',
+            "Click this link to verify your account:\n\n" . $verifyLink
+        );
+
+        if (!$mailSent) {
+            $errors[] = 'Verification email could not be sent. Please try again later.';
+        }
+    }
+
+    if (empty($errors)) {
         $stmt = $pdo->prepare("
             INSERT INTO users (username, email, password, verification_token)
             VALUES (?, ?, ?, ?)
@@ -68,23 +80,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $token,
         ]);
 
-        $mailSent = sendMail(
-            $email,
-            'Verify your Camagru account',
-            "Click this link to verify your account:\n\n" . $verifyLink
-        );
-
         $success = true;
     }
 }
 
 ob_start();
 ?>
-<section class="auth-wrap">
-    <div class="auth-card">
-        <p class="section-tag">New Expedition Member</p>
-        <h1 class="auth-title">Register</h1>
-        <p class="auth-copy">
+<section class="max-w-md mx-auto">
+    <div class="bg-white p-6 rounded shadow max-w-md mx-auto">
+        <p class="text-sm text-gray-500 mb-2">New Expedition Member</p>
+        <h1 class="text-2xl font-bold mb-4">Register</h1>
+        <p class="text-gray-600 mb-4">
             Join the crew and start cataloging scenes, portraits, and hidden clues inside the Camagru archive.
         </p>
 
@@ -93,16 +99,13 @@ ob_start();
                 Account created. Check your email to verify your account.<br>
 
                 <?php if (!$mailSent): ?>
-                    Mail could not be sent.<br>
-                    <a href="<?= e($verifyLink) ?>" class="underline">
-                        Verify your account
-                    </a>
+                    Mail could not be sent. Please try again later.
                 <?php endif; ?>
             </div>
         <?php endif; ?>
 
         <?php if (!empty($errors)): ?>
-            <div class="status-box error">
+            <div class="bg-red-100 text-red-700 p-2 rounded">
                 <ul>
                     <?php foreach ($errors as $error): ?>
                         <li><?= e($error) ?></li>
@@ -111,42 +114,44 @@ ob_start();
             </div>
         <?php endif; ?>
 
-        <form method="POST" class="form-grid">
+        <form method="POST" class="flex flex-col gap-4">
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
 
-            <div class="field">
-                <label for="username">Username</label>
+            <div>
+                <label for="username" class="block text-sm font-medium">Username</label>
                 <input
                     id="username"
                     type="text"
                     name="username"
                     value="<?= e($_POST['username'] ?? '') ?>"
                     placeholder="Choose your crew name"
+                    class="border p-2 rounded w-full"
                     required
                 >
             </div>
 
-            <div class="field">
-                <label for="email">Email</label>
+            <div>
+                <label for="email" class="block text-sm font-medium">Email</label>
                 <input
                     id="email"
                     type="email"
                     name="email"
                     value="<?= e($_POST['email'] ?? '') ?>"
                     placeholder="captain@camagru.local"
+                    class="border p-2 rounded w-full"
                     required
                 >
             </div>
 
-            <div class="field">
-                <label for="password">Password</label>
-                <input id="password" type="password" name="password" placeholder="At least 6 characters" required>
+            <div>
+                <label for="password" class="block text-sm font-medium">Password</label>
+                <input id="password" type="password" name="password" placeholder="At least 8 chars, upper, lower, number" class="border p-2 rounded w-full" required>
             </div>
 
-            <button type="submit" class="button-link">Create Account</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Create Account</button>
         </form>
 
-        <p class="footer-note">
+        <p class="mt-4 text-sm text-gray-600">
             Already in the archive? <a href="/login.php">Login here</a>.
         </p>
     </div>

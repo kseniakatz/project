@@ -56,12 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ob_start();
 ?>
-<section class="auth-wrap">
-    <div class="auth-card">
-        <h1 class="auth-title">Login</h1>
+<section class="max-w-md mx-auto">
+    <div class="bg-white p-6 rounded shadow max-w-md mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Login</h1>
 
         <?php if (!empty($errors)): ?>
-            <div class="status-box error">
+            <div class="bg-red-100 text-red-700 p-2 rounded">
                 <ul>
                     <?php foreach ($errors as $err): ?>
                         <li><?= e($err) ?></li>
@@ -70,25 +70,25 @@ ob_start();
             </div>
         <?php endif; ?>
 
-        <form method="POST" class="form-grid">
+        <form method="POST" class="flex flex-col gap-4">
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
 
-            <div class="field">
-                <label for="login">Email or Username</label>
+            <div>
+                <label for="login" class="block text-sm font-medium">Email or Username</label>
                 <input id="login" type="text" name="login"
-                       value="<?= e($_POST['login'] ?? '') ?>" required autofocus>
+                       value="<?= e($_POST['login'] ?? '') ?>" class="border p-2 rounded w-full" required autofocus>
             </div>
-            <div class="field">
-                <label for="password">Password</label>
-                <input id="password" type="password" name="password" required>
+            <div>
+                <label for="password" class="block text-sm font-medium">Password</label>
+                <input id="password" type="password" name="password" class="border p-2 rounded w-full" required>
             </div>
-            <button type="submit" class="button-link">Login</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Login</button>
         </form>
 
-        <p class="footer-note">
+        <p class="mt-4 text-sm text-gray-600">
             No account yet? <a href="/register.php">Register</a>.
         </p>
-        <p class="footer-note">
+        <p class="mt-2 text-sm text-gray-600">
             <a href="/forgot-password.php">Forgot password?</a>
         </p>
     </div>

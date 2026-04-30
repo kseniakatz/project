@@ -42,10 +42,10 @@ ob_start();
 
 <h1>Editor</h1>
 
-<div style="display:flex; gap:20px;">
+<div class="flex flex-col md:flex-row gap-4">
     <div>
-        <video id="video" width="400" autoplay></video>
-        <canvas id="preview" width="400" height="300" style="display:block; margin-top:10px; border:1px solid #ccc;"></canvas>
+        <video id="video" class="w-full max-w-md" autoplay></video>
+        <canvas id="preview" class="w-full max-w-md block mt-3 border border-gray-300"></canvas>
         <canvas id="canvas" style="display:none;"></canvas>
 
         <form method="POST" action="/create-image.php" enctype="multipart/form-data">
@@ -55,7 +55,7 @@ ob_start();
 
             <div>
                 <p>Or upload image:</p>
-                <input type="file" name="uploaded_image" id="uploaded_image" accept="image/png,image/jpeg">
+                <input type="file" name="uploaded_image" id="fileInput" accept="image/png,image/jpeg">
             </div>
 
             <div>
@@ -70,6 +70,7 @@ ob_start();
             </div>
 
             <button type="button" id="capture" class="disabled:opacity-50 disabled:cursor-not-allowed" disabled>Take photo</button>
+            <button type="button" id="stopCamera" class="disabled:opacity-50 disabled:cursor-not-allowed" disabled>Stop camera</button>
             <button type="submit" id="save" class="disabled:opacity-50 disabled:cursor-not-allowed" disabled>Save</button>
         </form>
     </div>
@@ -95,21 +96,37 @@ const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const preview = document.getElementById('preview');
 const captureBtn = document.getElementById('capture');
+const stopCameraBtn = document.getElementById('stopCamera');
 const saveBtn = document.getElementById('save');
 const cameraInput = document.getElementById('camera_image');
 const overlayInput = document.getElementById('overlay');
-const uploadInput = document.getElementById('uploaded_image');
+const uploadInput = document.getElementById('fileInput');
 const previewCtx = preview.getContext('2d');
 
 let hasImage = false;
 let hasOverlay = false;
+let hasWebcam = false;
+let hasUpload = false;
 let overlayImage = null;
+let stream = null;
 
-navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-        video.srcObject = stream;
-        video.addEventListener('loadedmetadata', drawPreview);
-    });
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(cameraStream => {
+            stream = cameraStream;
+            hasWebcam = true;
+            video.srcObject = stream;
+            video.addEventListener('loadedmetadata', drawPreview);
+            updateButtons();
+        })
+        .catch(() => {
+            hasWebcam = false;
+            video.style.display = 'none';
+            updateButtons();
+        });
+} else {
+    video.style.display = 'none';
+}
 
 document.querySelectorAll('.overlay').forEach(img => {
     img.addEventListener('click', () => {
@@ -117,12 +134,15 @@ document.querySelectorAll('.overlay').forEach(img => {
         overlayImage = new Image();
         overlayImage.src = img.src;
         hasOverlay = true;
-        captureBtn.disabled = false;
         updateButtons();
     });
 });
 
 captureBtn.addEventListener('click', () => {
+    if (!hasWebcam) {
+        return;
+    }
+
     const ctx = canvas.getContext('2d');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -135,14 +155,29 @@ captureBtn.addEventListener('click', () => {
     updateButtons();
 });
 
+stopCameraBtn.addEventListener('click', () => {
+    if (!stream) {
+        return;
+    }
+
+    stream.getTracks().forEach(track => track.stop());
+    video.srcObject = null;
+    stream = null;
+    hasWebcam = false;
+    updateButtons();
+});
+
 uploadInput.addEventListener('change', () => {
     cameraInput.value = '';
-    hasImage = uploadInput.files.length > 0;
+    hasUpload = uploadInput.files.length > 0;
+    hasImage = hasUpload;
     updateButtons();
 });
 
 function updateButtons() {
-    captureBtn.disabled = !hasOverlay;
+    const hasSource = hasWebcam || hasUpload;
+    captureBtn.disabled = !(hasOverlay && hasSource);
+    stopCameraBtn.disabled = !hasWebcam;
     saveBtn.disabled = !(hasOverlay && hasImage);
 }
 
