@@ -175,8 +175,7 @@ uploadInput.addEventListener('change', () => {
 });
 
 function updateButtons() {
-    const hasSource = hasWebcam || hasUpload;
-    captureBtn.disabled = !(hasOverlay && hasSource);
+    captureBtn.disabled = !(hasOverlay && hasWebcam);
     stopCameraBtn.disabled = !hasWebcam;
     saveBtn.disabled = !(hasOverlay && hasImage);
 }

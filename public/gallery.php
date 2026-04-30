@@ -14,7 +14,7 @@ $title = 'Gallery';
 $userId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
 $sort = $_GET['sort'] ?? 'newest';
 
-if (!in_array($sort, ['newest', 'likes'], true)) {
+if (!in_array($sort, ['newest', 'oldest'], true)) {
     $sort = 'newest';
 }
 
@@ -33,23 +33,40 @@ if ($page > $totalPages) {
 }
 
 $offset = ($page - 1) * PER_PAGE;
-$orderBy = $sort === 'likes' ? 'likes_count DESC, u.created_at DESC' : 'u.created_at DESC';
 
-$stmt = $pdo->prepare("
-    SELECT
-        u.id,
-        u.user_id,
-        u.filename,
-        u.created_at,
-        usr.username,
-        COUNT(DISTINCT l.user_id) AS likes_count
-    FROM uploads u
-    JOIN users usr ON usr.id = u.user_id
-    LEFT JOIN likes l ON l.upload_id = u.id
-    GROUP BY u.id
-    ORDER BY $orderBy
-    LIMIT :limit OFFSET :offset
-");
+if ($sort === 'oldest') {
+    $stmt = $pdo->prepare("
+        SELECT
+            u.id,
+            u.user_id,
+            u.filename,
+            u.created_at,
+            usr.username,
+            COUNT(DISTINCT l.user_id) AS likes_count
+        FROM uploads u
+        JOIN users usr ON usr.id = u.user_id
+        LEFT JOIN likes l ON l.upload_id = u.id
+        GROUP BY u.id
+        ORDER BY u.created_at ASC
+        LIMIT :limit OFFSET :offset
+    ");
+} else {
+    $stmt = $pdo->prepare("
+        SELECT
+            u.id,
+            u.user_id,
+            u.filename,
+            u.created_at,
+            usr.username,
+            COUNT(DISTINCT l.user_id) AS likes_count
+        FROM uploads u
+        JOIN users usr ON usr.id = u.user_id
+        LEFT JOIN likes l ON l.upload_id = u.id
+        GROUP BY u.id
+        ORDER BY u.created_at DESC
+        LIMIT :limit OFFSET :offset
+    ");
+}
 
 $stmt->bindValue(':limit', PER_PAGE, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -93,7 +110,7 @@ ob_start();
     <label for="sort" class="mr-2">Sort</label>
     <select id="sort" name="sort" class="border p-2 rounded" onchange="this.form.submit()">
         <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Newest</option>
-        <option value="likes" <?= $sort === 'likes' ? 'selected' : '' ?>>Most liked</option>
+        <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
     </select>
 </form>
 

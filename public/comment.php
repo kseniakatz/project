@@ -79,7 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $subject = 'New comment on your photo';
             $message = "Someone commented on your photo:\n\n" . $content;
 
-            mail($to, $subject, $message);
+            if (!mail($to, $subject, $message)) {
+                error_log('Comment notification email failed');
+            }
         }
 
         if ($isAjax) {

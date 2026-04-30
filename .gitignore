@@ -1,4 +1,8 @@
 .env
+.env.local
+.env.*.local
+
 AGENTS.md
+
 public/uploads/*
 !public/uploads/.gitkeep

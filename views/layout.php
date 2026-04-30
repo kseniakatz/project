@@ -20,10 +20,10 @@ $isAuthenticated = isset($_SESSION['user_id']);
 <body class="bg-gray-100 text-gray-900">
 
 <header class="bg-white shadow">
-    <div class="max-w-5xl mx-auto flex justify-between items-center p-4">
+    <div class="max-w-5xl mx-auto flex flex-wrap justify-between items-center gap-3 p-4">
         <a href="/gallery.php" class="font-bold text-lg">Camagru</a>
 
-        <nav class="flex gap-4">
+        <nav class="flex flex-wrap gap-4">
             <?php if ($isAuthenticated): ?>
                 <a href="/gallery.php">Gallery</a>
                 <a href="/editor.php">Editor</a>

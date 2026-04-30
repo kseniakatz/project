@@ -47,6 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $resetLink = app_url('reset-password.php?token=' . $token);
             $mailAttempted = true;
             $mailSent = mail($email, 'Reset your Camagru password', "Reset your password:\n\n" . $resetLink);
+
+            if (!$mailSent) {
+                error_log('Password reset email failed for user id ' . $user['id']);
+            }
         }
 
         $success = true;
@@ -62,9 +66,6 @@ ob_start();
         <?php if ($success): ?>
             <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
                 <p>If the email exists, a reset link has been sent.</p>
-                <?php if ($mailAttempted && !$mailSent): ?>
-                    <p>Mail could not be sent. Please try again later.</p>
-                <?php endif; ?>
             </div>
         <?php endif; ?>
 

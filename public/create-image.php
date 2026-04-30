@@ -48,7 +48,7 @@ if ($cameraImage !== '') {
         exit;
     }
 
-    $base = imagecreatefromstring($data);
+    $base = @imagecreatefromstring($data);
 } elseif (
     is_array($upload)
     && isset($upload['error'], $upload['tmp_name'])
@@ -82,8 +82,8 @@ if ($cameraImage !== '') {
     }
 
     $base = $mime === 'image/png'
-        ? imagecreatefrompng($upload['tmp_name'])
-        : imagecreatefromjpeg($upload['tmp_name']);
+        ? @imagecreatefrompng($upload['tmp_name'])
+        : @imagecreatefromjpeg($upload['tmp_name']);
 }
 
 if (!$base) {
@@ -92,7 +92,7 @@ if (!$base) {
 }
 
 $overlayPath = __DIR__ . '/overlays/' . $overlay;
-$overlayImg = imagecreatefrompng($overlayPath);
+$overlayImg = @imagecreatefrompng($overlayPath);
 
 if (!$overlayImg) {
     imagedestroy($base);
