@@ -3,6 +3,7 @@
 .env.*.local
 !.env.example
 
+.codex
 AGENTS.md
 
 public/uploads/*
