@@ -104,18 +104,18 @@ $commentsStmt = $pdo->prepare('
 ob_start();
 ?>
 
-<h1 class="text-2xl font-bold mb-6">Gallery</h1>
+<h1 class="text-2xl font-semibold mb-6 text-white">Gallery</h1>
 
 <form method="GET" class="mb-6">
     <label for="sort" class="mr-2">Sort</label>
-    <select id="sort" name="sort" class="border p-2 rounded" onchange="this.form.submit()">
+    <select id="sort" name="sort" class="bg-slate-950 border border-slate-700 text-white p-2 rounded-md" onchange="this.form.submit()">
         <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Newest</option>
         <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
     </select>
 </form>
 
 <?php if (empty($images)): ?>
-    <p class="text-gray-500">No images yet.</p>
+    <p class="text-slate-400">No images yet.</p>
 <?php else: ?>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -128,7 +128,7 @@ ob_start();
                 $comments = $commentsStmt->fetchAll();
             ?>
 
-            <div class="bg-white rounded-xl shadow overflow-hidden">
+            <div class="gallery-card bg-slate-950 border border-slate-800 rounded-xl overflow-hidden">
 
                 <img
                     src="/uploads/<?= e($filename) ?>"
@@ -136,7 +136,7 @@ ob_start();
                     class="w-full aspect-square object-cover transition transform hover:scale-105"
                 >
 
-                <div class="p-3 flex justify-between text-sm text-gray-600">
+                <div class="p-3 flex justify-between text-sm text-slate-300">
                     <span><?= e($img['username']) ?></span>
                 </div>
 
@@ -144,7 +144,7 @@ ob_start();
                     <form method="POST" action="/like.php" class="p-3 like-form">
                         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="upload_id" value="<?= (int)$img['id'] ?>">
-                        <button class="like-button px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed <?= $liked ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-700' ?>">
+                        <button class="like-button px-3 py-1 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed <?= $liked ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200' ?>">
                             <span class="like-label"><?= $liked ? '❤️ Unlike' : '♡ Like' ?></span>
                             <span class="like-count"><?= (int)$img['likes_count'] ?></span>
                         </button>
@@ -155,13 +155,13 @@ ob_start();
                     <form method="POST" action="/delete-image.php" class="p-3">
                         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="upload_id" value="<?= (int)$img['id'] ?>">
-                        <button class="text-red-500 text-sm disabled:opacity-50 disabled:cursor-not-allowed" onclick="return confirm('Delete this image?')">Delete</button>
+                        <button class="text-slate-300 hover:text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed" onclick="return confirm('Delete this image?')">Delete</button>
                     </form>
                 <?php endif; ?>
 
-                <div class="m-3 p-3 border rounded bg-gray-50 text-sm comments-list">
+                <div class="m-3 p-3 border border-slate-800 rounded-md bg-slate-900 text-sm comments-list">
                     <?php if (empty($comments)): ?>
-                        <p class="text-gray-500 no-comments">No comments yet.</p>
+                        <p class="text-slate-400 no-comments">No comments yet.</p>
                     <?php else: ?>
                         <?php foreach ($comments as $comment): ?>
                             <p class="mb-2 last:mb-0">
@@ -181,9 +181,9 @@ ob_start();
                             name="content"
                             required
                             placeholder="Write a comment..."
-                            class="border p-2 rounded w-full mb-2"
+                            class="bg-slate-900 border border-slate-700 text-white p-2 rounded-md w-full mb-2"
                         >
-                        <button class="bg-blue-500 text-white px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded-md disabled:opacity-50 disabled:cursor-not-allowed">
                             Send
                         </button>
                     </form>
@@ -199,15 +199,15 @@ ob_start();
         <nav class="flex items-center gap-4 mt-8">
 
             <?php if ($page > 1): ?>
-                <a href="/gallery.php?page=<?= $page - 1 ?>&sort=<?= e($sort) ?>" class="px-3 py-1 bg-gray-200 rounded">Prev</a>
+                <a href="/gallery.php?page=<?= $page - 1 ?>&sort=<?= e($sort) ?>" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-md">Prev</a>
             <?php endif; ?>
 
-            <span class="text-gray-500">
+            <span class="text-slate-400">
                 Page <?= $page ?> / <?= $totalPages ?>
             </span>
 
             <?php if ($page < $totalPages): ?>
-                <a href="/gallery.php?page=<?= $page + 1 ?>&sort=<?= e($sort) ?>" class="px-3 py-1 bg-gray-200 rounded">Next</a>
+                <a href="/gallery.php?page=<?= $page + 1 ?>&sort=<?= e($sort) ?>" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-md">Next</a>
             <?php endif; ?>
 
         </nav>
@@ -239,10 +239,10 @@ document.querySelectorAll('.like-form').forEach(form => {
 
                 count.textContent = data.likes;
                 label.textContent = data.liked ? '❤️ Unlike' : '♡ Like';
-                button.classList.toggle('bg-red-500', data.liked);
+                button.classList.toggle('bg-indigo-600', data.liked);
                 button.classList.toggle('text-white', data.liked);
-                button.classList.toggle('bg-gray-200', !data.liked);
-                button.classList.toggle('text-gray-700', !data.liked);
+                button.classList.toggle('bg-slate-800', !data.liked);
+                button.classList.toggle('text-slate-200', !data.liked);
             })
             .catch(() => {});
     });
@@ -265,7 +265,7 @@ document.querySelectorAll('.comment-form').forEach(form => {
                     return;
                 }
 
-                const card = form.closest('.bg-white');
+                const card = form.closest('.gallery-card');
                 const list = card.querySelector('.comments-list');
                 const empty = list.querySelector('.no-comments');
 

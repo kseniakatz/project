@@ -21,6 +21,13 @@ $cameraImage = $_POST['camera_image'] ?? '';
 $upload = $_FILES['uploaded_image'] ?? null;
 $maxImageSize = 5 * 1024 * 1024;
 
+function redirectWithError(string $message): void
+{
+    $_SESSION['error'] = $message;
+    header('Location: /editor.php');
+    exit;
+}
+
 $allowedOverlays = array_map('basename', glob(__DIR__ . '/overlays/*.png') ?: []);
 
 if (!in_array($overlay, $allowedOverlays, true)) {
@@ -32,20 +39,17 @@ $base = null;
 
 if ($cameraImage !== '') {
     if (strlen($cameraImage) > $maxImageSize) {
-        header('Location: /editor.php');
-        exit;
+        redirectWithError('Image file is too large.');
     }
 
     if (!str_starts_with($cameraImage, 'data:image/png;base64,')) {
-        header('Location: /editor.php');
-        exit;
+        redirectWithError('Invalid image content.');
     }
 
     $data = base64_decode(substr($cameraImage, strlen('data:image/png;base64,')), true);
 
     if ($data === false) {
-        header('Location: /editor.php');
-        exit;
+        redirectWithError('Invalid image content.');
     }
 
     $base = @imagecreatefromstring($data);
@@ -54,31 +58,34 @@ if ($cameraImage !== '') {
     && isset($upload['error'], $upload['tmp_name'])
 ) {
     if ($upload['error'] !== UPLOAD_ERR_OK) {
-        exit('Upload failed');
+        redirectWithError('Upload failed. Please try again.');
     }
 
     if (!is_uploaded_file($upload['tmp_name'])) {
-        header('Location: /editor.php');
-        exit;
+        redirectWithError('Invalid upload.');
     }
 
     if (($upload['size'] ?? 0) > $maxImageSize) {
-        header('Location: /editor.php');
-        exit;
+        redirectWithError('Image file is too large.');
     }
 
     $mime = mime_content_type($upload['tmp_name']);
 
     if (!in_array($mime, ['image/png', 'image/jpeg'], true)) {
-        header('Location: /editor.php');
-        exit;
+        redirectWithError('Invalid file type. Only JPG and PNG are allowed.');
     }
 
     $info = getimagesize($upload['tmp_name']);
 
     if ($info === false) {
-        header('Location: /editor.php');
-        exit;
+        redirectWithError('Invalid image content.');
+    }
+
+    $width = $info[0];
+    $height = $info[1];
+
+    if ($width > 2000 || $height > 2000) {
+        redirectWithError('Image dimensions are too large.');
     }
 
     $base = $mime === 'image/png'
@@ -87,8 +94,7 @@ if ($cameraImage !== '') {
 }
 
 if (!$base) {
-    header('Location: /editor.php');
-    exit;
+    redirectWithError('Invalid image content.');
 }
 
 $overlayPath = __DIR__ . '/overlays/' . $overlay;
@@ -106,7 +112,7 @@ $height = imagesy($base);
 if ($width > 2000 || $height > 2000) {
     imagedestroy($base);
     imagedestroy($overlayImg);
-    exit('Image too large');
+    redirectWithError('Image dimensions are too large.');
 }
 
 $overlayResized = imagecreatetruecolor($width, $height);

@@ -1,49 +1,50 @@
 <?php
-
-declare(strict_types=1);
-
-require_once __DIR__ . '/../src/helpers/helpers.php';
-
-$pageTitle = isset($title) ? e($title) : 'Camagru';
-$isAuthenticated = isset($_SESSION['user_id']);
+$userId = $_SESSION['user_id'] ?? null;
+$pageTitle = $title ?? 'Camagru';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $pageTitle ?></title>
-
+    <title><?= e($pageTitle) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 text-gray-900">
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans antialiased">
+    <header class="border-b border-slate-800 bg-slate-950">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <a href="/gallery.php" class="text-2xl font-semibold tracking-tight">
+                Camagru
+            </a>
 
-<header class="bg-white shadow">
-    <div class="max-w-5xl mx-auto flex flex-wrap justify-between items-center gap-3 p-4">
-        <a href="/gallery.php" class="font-bold text-lg">Camagru</a>
+            <nav class="flex flex-wrap gap-2 text-sm">
+                <a class="px-3 py-2 rounded-md text-slate-200 hover:bg-slate-800 transition" href="/gallery.php">Gallery</a>
 
-        <nav class="flex flex-wrap gap-4">
-            <?php if ($isAuthenticated): ?>
-                <a href="/gallery.php">Gallery</a>
-                <a href="/editor.php">Editor</a>
-                <a href="/profile.php">Profile</a>
-                <a href="/logout.php" class="text-red-500">Logout</a>
-            <?php else: ?>
-                <a href="/login.php">Login</a>
-                <a href="/register.php">Register</a>
-            <?php endif; ?>
-        </nav>
-    </div>
-</header>
+                <?php if ($userId): ?>
+                    <a class="px-3 py-2 rounded-md text-slate-200 hover:bg-slate-800 transition" href="/editor.php">Editor</a>
+                    <a class="px-3 py-2 rounded-md text-slate-200 hover:bg-slate-800 transition" href="/profile.php">Profile</a>
+                    <a class="px-3 py-2 rounded-md text-slate-300 hover:bg-slate-800 transition" href="/logout.php">Logout</a>
+                <?php else: ?>
+                    <a class="px-3 py-2 rounded-md text-slate-200 hover:bg-slate-800 transition" href="/login.php">Login</a>
+                    <a class="px-3 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-500 transition" href="/register.php">Register</a>
+                <?php endif; ?>
+            </nav>
+        </div>
+    </header>
 
-<main class="max-w-5xl mx-auto p-6">
-    <?= $content ?? '' ?>
-</main>
+    <main class="flex-1 w-full">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="rounded-xl border border-slate-800 bg-slate-900 p-5 sm:p-8">
+                <?= $content ?? '' ?>
+            </div>
+        </div>
+    </main>
 
-<footer class="text-center text-sm text-gray-500 p-4">
-    Camagru
-</footer>
-
+    <footer class="border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 py-4 text-center text-sm text-slate-400">
+            © <?= date('Y') ?> Camagru
+        </div>
+    </footer>
 </body>
 </html>

@@ -37,15 +37,15 @@ if ($token !== '') {
 ob_start();
 ?>
 
-<div class="max-w-md mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-xl font-bold mb-4">Email Verification</h1>
+<div class="max-w-md mx-auto bg-slate-950 border border-slate-800 p-6 rounded-xl">
+    <h1 class="text-xl font-semibold mb-4 text-white">Email Verification</h1>
 
-    <p class="<?= $success ? 'text-green-600' : 'text-red-500' ?>">
+    <p class="<?= $success ? 'text-indigo-200' : 'text-slate-300' ?>">
         <?= e($message) ?>
     </p>
 
     <?php if ($success): ?>
-        <a href="/login.php" class="text-blue-600 underline block mt-4">
+        <a href="/login.php" class="text-indigo-300 underline block mt-4">
             Go to login
         </a>
     <?php endif; ?>

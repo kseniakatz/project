@@ -57,11 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ob_start();
 ?>
 <section class="max-w-md mx-auto">
-    <div class="bg-white p-6 rounded shadow max-w-md mx-auto">
-        <h1 class="text-2xl font-bold mb-4">Login</h1>
+    <div class="bg-slate-950 border border-slate-800 p-6 rounded-xl max-w-md mx-auto">
+        <h1 class="text-2xl font-semibold mb-4 text-white">Login</h1>
 
         <?php if (!empty($errors)): ?>
-            <div class="bg-red-100 text-red-700 p-2 rounded">
+            <div class="bg-indigo-500/10 text-indigo-100 border border-indigo-500/30 p-3 rounded-md mb-4">
                 <ul>
                     <?php foreach ($errors as $err): ?>
                         <li><?= e($err) ?></li>
@@ -76,20 +76,20 @@ ob_start();
             <div>
                 <label for="login" class="block text-sm font-medium">Email or Username</label>
                 <input id="login" type="text" name="login"
-                       value="<?= e($_POST['login'] ?? '') ?>" class="border p-2 rounded w-full" required autofocus>
+                       value="<?= e($_POST['login'] ?? '') ?>" class="bg-slate-900 border border-slate-700 text-white p-2 rounded-md w-full" required autofocus>
             </div>
             <div>
                 <label for="password" class="block text-sm font-medium">Password</label>
-                <input id="password" type="password" name="password" class="border p-2 rounded w-full" required>
+                <input id="password" type="password" name="password" class="bg-slate-900 border border-slate-700 text-white p-2 rounded-md w-full" required>
             </div>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Login</button>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md">Login</button>
         </form>
 
-        <p class="mt-4 text-sm text-gray-600">
-            No account yet? <a href="/register.php">Register</a>.
+        <p class="mt-4 text-sm text-slate-400">
+            No account yet? <a href="/register.php" class="text-indigo-300 hover:text-indigo-200">Register</a>.
         </p>
-        <p class="mt-2 text-sm text-gray-600">
-            <a href="/forgot-password.php">Forgot password?</a>
+        <p class="mt-2 text-sm text-slate-400">
+            <a href="/forgot-password.php" class="text-indigo-300 hover:text-indigo-200">Forgot password?</a>
         </p>
     </div>
 </section>

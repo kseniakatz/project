@@ -60,17 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ob_start();
 ?>
 <section class="max-w-md mx-auto">
-    <div class="bg-white p-6 rounded shadow">
-        <h1 class="text-2xl font-bold mb-4">Forgot Password</h1>
+    <div class="bg-slate-950 border border-slate-800 p-6 rounded-xl">
+        <h1 class="text-2xl font-semibold mb-4 text-white">Forgot Password</h1>
 
         <?php if ($success): ?>
-            <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
+            <div class="bg-indigo-500/10 text-indigo-100 border border-indigo-500/30 p-3 rounded-md mb-4">
                 <p>If the email exists, a reset link has been sent.</p>
             </div>
         <?php endif; ?>
 
         <?php if (!empty($errors)): ?>
-            <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+            <div class="bg-indigo-500/10 text-indigo-100 border border-indigo-500/30 p-3 rounded-md mb-4">
                 <ul>
                     <?php foreach ($errors as $error): ?>
                         <li><?= e($error) ?></li>
@@ -89,12 +89,12 @@ ob_start();
                     type="email"
                     name="email"
                     value="<?= e($_POST['email'] ?? '') ?>"
-                    class="border p-2 rounded w-full"
+                    class="bg-slate-900 border border-slate-700 text-white p-2 rounded-md w-full"
                     required
                 >
             </div>
 
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Send Reset Link</button>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md">Send Reset Link</button>
         </form>
     </div>
 </section>

@@ -87,15 +87,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ob_start();
 ?>
 <section class="max-w-md mx-auto">
-    <div class="bg-white p-6 rounded shadow max-w-md mx-auto">
-        <p class="text-sm text-gray-500 mb-2">New Expedition Member</p>
-        <h1 class="text-2xl font-bold mb-4">Register</h1>
-        <p class="text-gray-600 mb-4">
+    <div class="bg-slate-950 border border-slate-800 p-6 rounded-xl max-w-md mx-auto">
+        <p class="text-sm text-slate-400 mb-2">New Expedition Member</p>
+        <h1 class="text-2xl font-semibold mb-4 text-white">Register</h1>
+        <p class="text-slate-400 mb-4">
             Join the crew and start cataloging scenes, portraits, and hidden clues inside the Camagru archive.
         </p>
 
         <?php if ($success): ?>
-            <div class="mt-4 text-green-600">
+            <div class="mt-4 text-indigo-100 bg-indigo-500/10 border border-indigo-500/30 p-3 rounded-md">
                 Account created. Check your email to verify your account.<br>
 
                 <?php if (!$mailSent): ?>
@@ -105,7 +105,7 @@ ob_start();
         <?php endif; ?>
 
         <?php if (!empty($errors)): ?>
-            <div class="bg-red-100 text-red-700 p-2 rounded">
+            <div class="bg-indigo-500/10 text-indigo-100 border border-indigo-500/30 p-3 rounded-md mb-4">
                 <ul>
                     <?php foreach ($errors as $error): ?>
                         <li><?= e($error) ?></li>
@@ -125,7 +125,7 @@ ob_start();
                     name="username"
                     value="<?= e($_POST['username'] ?? '') ?>"
                     placeholder="Choose your crew name"
-                    class="border p-2 rounded w-full"
+                    class="bg-slate-900 border border-slate-700 text-white p-2 rounded-md w-full"
                     required
                 >
             </div>
@@ -138,21 +138,21 @@ ob_start();
                     name="email"
                     value="<?= e($_POST['email'] ?? '') ?>"
                     placeholder="captain@camagru.local"
-                    class="border p-2 rounded w-full"
+                    class="bg-slate-900 border border-slate-700 text-white p-2 rounded-md w-full"
                     required
                 >
             </div>
 
             <div>
                 <label for="password" class="block text-sm font-medium">Password</label>
-                <input id="password" type="password" name="password" placeholder="At least 8 chars, upper, lower, number" class="border p-2 rounded w-full" required>
+                <input id="password" type="password" name="password" placeholder="At least 8 chars, upper, lower, number" class="bg-slate-900 border border-slate-700 text-white p-2 rounded-md w-full" required>
             </div>
 
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Create Account</button>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md">Create Account</button>
         </form>
 
-        <p class="mt-4 text-sm text-gray-600">
-            Already in the archive? <a href="/login.php">Login here</a>.
+        <p class="mt-4 text-sm text-slate-400">
+            Already in the archive? <a href="/login.php" class="text-indigo-300 hover:text-indigo-200">Login here</a>.
         </p>
     </div>
 </section>
